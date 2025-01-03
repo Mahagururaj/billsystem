@@ -8,32 +8,35 @@
 //     document.getElementById('current-date').textContent = formatDate(new Date());
 
 //     // Function to add a new row
-//     function addRow() {
-//       const tableBody = document.getElementById('invoice-rows');
-//       const row = document.createElement('tr');
-//       row.innerHTML = `
-//         <td><input type="date" required></td>
-//         <td>
-//           <select required>
-//             <option value="Khasta">Khasta</option>
-//              <option value="Khasta">Khasta(130)</option>
-//               <option value="Khasta">Khasta(140)</option>
-//             <option value="Chikki">Chikki</option>
-//             <option value="Jamun">Jamun</option>
-//           </select>
-//         </td>
-//         <td>
-//           <input type="number" min="1" value="1" oninput="updateTotals()" required>
-//           <select required>
-//             <option value="J">J</option>
-//             <option value="P">P</option>
-//           </select>
-//         </td>
-//         <td><input type="number" min="0.01" step="0.01" value="0.00" oninput="updateTotals()" required></td>
-//         <td class="row-total">0.00</td>
-//       `;
-//       tableBody.appendChild(row);
-//     }
+//    function addRow() {
+  const tableBody = document.getElementById("invoice-rows");
+  const rowNumber = tableBody.children.length + 1; // Dynamic row numbering
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td>${rowNumber}</td>
+    <td><input type="date" required></td>
+    <td>
+      <select required>
+        <option value="" disabled selected>Select Item</option>
+        <option value="Khasta">Khasta</option>
+        <option value="Khasta(130)">Khasta(130)</option>
+        <option value="Khasta(140)">Khasta(140)</option>
+        <option value="Chikki">Chikki</option>
+        <option value="Jamun">Jamun</option>
+      </select>
+    </td>
+    <td>
+      <input type="number" min="1" value="1" oninput="updateTotals()" required>
+      <select required>
+        <option value="J">J</option>
+        <option value="P">P</option>
+      </select>
+    </td>
+    <td><input type="number" min="0.01" step="0.01" value="0.00" oninput="updateTotals()" required></td>
+    <td class="row-total">0.00</td>
+  `;
+  tableBody.appendChild(row);
+}
 
 //     // Function to calculate totals
 //     function updateTotals() {
