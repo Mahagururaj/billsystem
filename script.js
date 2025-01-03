@@ -150,11 +150,11 @@ function addRow() {
     <td>
       <select required>
         <option value="" disabled selected>Select Item</option>
-        <option value="Khasta">Khasta</option>
         <option value="Khasta(130)">Khasta(130)</option>
         <option value="Khasta(140)">Khasta(140)</option>
         <option value="Chikki">Chikki</option>
         <option value="Jamun">Jamun</option>
+        <option value="Khasta">Khasta</option>
       </select>
     </td>
     <td>
