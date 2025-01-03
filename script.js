@@ -133,19 +133,22 @@
 //     // Add an initial row on page load
 //     addRow();
 
-// Set current date in format DD/MM/YYYY
+// Function to format date
 const formatDate = (date) => {
   const day = ("0" + date.getDate()).slice(-2);
   const month = ("0" + (date.getMonth() + 1)).slice(-2);
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
 };
-document.getElementById("current-date").textContent = formatDate(new Date());
+
+// Set current date
+document.getElementById("current-date").textContent = `Date: ${formatDate(new Date())}`;
 
 // Function to add a new row
 function addRow() {
   const tableBody = document.getElementById("invoice-rows");
   const rowNumber = tableBody.children.length + 1; // Dynamic row numbering
+  
   const row = document.createElement("tr");
   row.innerHTML = `
     <td>${rowNumber}</td>
@@ -173,7 +176,7 @@ function addRow() {
   tableBody.appendChild(row);
 }
 
-// Function to calculate totals
+// Function to update totals
 function updateTotals() {
   const rows = document.querySelectorAll("#invoice-rows tr");
   let totalAmount = 0;
@@ -189,88 +192,48 @@ function updateTotals() {
   document.getElementById("total-amount").textContent = totalAmount.toFixed(2);
 }
 
-// Function to generate PDF using jsPDF
+// Function to generate PDF
 function generatePDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  // Get Shop Name
+  // Shop Name
   const shopName = document.getElementById("shop-name-input").value.trim();
   if (!shopName) {
     alert("Please enter the shop name.");
     return;
   }
 
-  // Add Shop Name (Centered)
   doc.setFontSize(18);
-  const shopNameWidth = doc.getTextWidth(shopName);
-  const centerX = (210 - shopNameWidth) / 2;
-  doc.setTextColor(0, 102, 204);
-  doc.text(shopName, centerX, 20);
+  doc.text(shopName, 105, 20, { align: "center" });
 
-  // Add Date (Right Aligned)
-  doc.setFontSize(14);
+  // Current Date
   const dateText = "Date: " + formatDate(new Date());
-  const dateWidth = doc.getTextWidth(dateText);
-  const rightX = 210 - dateWidth - 10;
-  doc.setTextColor(255, 69, 0);
-  doc.text(dateText, rightX, 20);
+  doc.setFontSize(14);
+  doc.text(dateText, 200, 20, { align: "right" });
 
-  // Define table rows
+  // Table Data
   const rows = [];
-  const tableData = document.querySelectorAll("#invoice-rows tr");
-
-  tableData.forEach((row, index) => {
+  document.querySelectorAll("#invoice-rows tr").forEach((row) => {
     const date = row.children[1].querySelector("input").value || "N/A";
     const item = row.children[2].querySelector("select").value || "N/A";
     const quantity = row.children[3].querySelector("input").value || "0";
     const type = row.children[3].querySelector("select").value || "";
     const total = row.children[5].textContent || "0.00";
 
-    if (!date || !item || !quantity) {
-      alert(`Row ${index + 1} is incomplete. Please fill all required fields.`);
-      return;
-    }
-
     rows.push([date, item, `${quantity} (${type})`, total]);
   });
 
-  if (rows.length === 0) return;
-
-  // Table headers and styling using autoTable plugin
   doc.autoTable({
-    startY: 30,
-    head: [["Date", "Item Description", "Quantity", "Total"]],
+    head: [["Date", "Item", "Quantity", "Total"]],
     body: rows,
-    theme: "striped",
-    columnStyles: {
-      0: { cellWidth: 40 },
-      1: { cellWidth: 70 },
-      2: { cellWidth: 50 },
-      3: { cellWidth: 30 },
-    },
-    headStyles: {
-      fillColor: [0, 102, 204],
-      textColor: [255, 255, 255],
-    },
-    bodyStyles: {
-      textColor: [0, 0, 0],
-    },
   });
 
-  // Add Total Amount
   const totalAmount = document.getElementById("total-amount").textContent || "0.00";
-  const totalY = doc.lastAutoTable.finalY + 10;
-  doc.setFillColor(0, 128, 0);
-  doc.rect(20, totalY, 170, 10, "F");
+  doc.text(`Total: ${totalAmount}`, 105, doc.lastAutoTable.finalY + 10, { align: "center" });
 
-  doc.setFontSize(16);
-  doc.setTextColor(255, 255, 255);
-  doc.text(`Total: ${totalAmount}`, 25, totalY + 7);
-
-  // Save the PDF
   doc.save(`${shopName}_Invoice.pdf`);
 }
 
-// Add an initial row on page load
+// Add initial row
 addRow();
