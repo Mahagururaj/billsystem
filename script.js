@@ -15,6 +15,7 @@
         <td><input type="date" required></td>
         <td>
           <select required>
+            <option value="Khasta">Khasta</option>
              <option value="Khasta">Khasta(130)</option>
               <option value="Khasta">Khasta(140)</option>
             <option value="Chikki">Chikki</option>
