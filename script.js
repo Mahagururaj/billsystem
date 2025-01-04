@@ -32,7 +32,7 @@ function addRow() {
         <option value="P">P</option>
       </select>
     </td>
-    <td><input type="number" min="0.01" step="0.01" value="0.00" oninput="updateTotals()" required></td>
+    <td><input type="number" min="0.01" step="0.01" value="0" oninput="updateTotals()" required></td>
     <td class="row-total">0</td>
   `;
   tableBody.appendChild(row);
@@ -46,12 +46,12 @@ function updateTotals() {
   rows.forEach((row) => {
     const quantity = parseInt(row.children[3].querySelector("input").value) || 0;
     const price = parseFloat(row.children[4].querySelector("input").value) || 0;
-    const total = quantity * price;
-    row.children[5].textContent = total.toFixed(2);
+    const total = Math.round(quantity * price); // Rounds to nearest integer
+    row.children[5].textContent = total; // No `.00`
     totalAmount += total;
   });
 
-  document.getElementById("total-amount").textContent = totalAmount.toFixed(2);
+  document.getElementById("total-amount").textContent = totalAmount; // No `.00`
 }
 
 // Function to generate PDF using jsPDF
@@ -76,7 +76,7 @@ function generatePDF() {
     const item = row.children[2].querySelector("select").value || "";
     const quantity = row.children[3].querySelector("input").value || "0";
     const type = row.children[3].querySelector("select").value || "";
-    const price = parseFloat(row.children[4].querySelector("input").value) || "0";
+    const price = parseInt(row.children[4].querySelector("input").value) || 0; // Integer only
     const total = row.children[5].textContent || "0";
 
     rows.push([date, item, `${quantity} (${type})`, price, total]);
@@ -94,8 +94,13 @@ function generatePDF() {
   // Add Total Amount
   const totalAmount = document.getElementById("total-amount").textContent || "0";
   const totalY = doc.lastAutoTable.finalY + 10;
+
+  doc.setFillColor(255, 0, 0); // Red background for total
+  doc.rect(20, totalY - 7, 170, 10, "F"); // Total background rectangle
+
   doc.setFontSize(14);
-  doc.text(`Total: ${totalAmount}`, 105, totalY, { align: "center" });
+  doc.setTextColor(255, 255, 255); // White text for total
+  doc.text(`Total: ₹${totalAmount}`, 105, totalY, { align: "center" });
 
   // Save the PDF
   doc.save(`${shopName}.pdf`);
