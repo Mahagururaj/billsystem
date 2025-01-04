@@ -33,7 +33,7 @@ function addRow() {
       </select>
     </td>
     <td><input type="number" min="0.01" step="0.01" value="0.00" oninput="updateTotals()" required></td>
-    <td class="row-total">0.00</td>
+    <td class="row-total">0</td>
   `;
   tableBody.appendChild(row);
 }
@@ -76,8 +76,8 @@ function generatePDF() {
     const item = row.children[2].querySelector("select").value || "";
     const quantity = row.children[3].querySelector("input").value || "0";
     const type = row.children[3].querySelector("select").value || "";
-    const price = parseFloat(row.children[4].querySelector("input").value) || "0.00";
-    const total = row.children[5].textContent || "0.00";
+    const price = parseFloat(row.children[4].querySelector("input").value) || "0";
+    const total = row.children[5].textContent || "0";
 
     rows.push([date, item, `${quantity} (${type})`, price, total]);
   });
@@ -92,10 +92,10 @@ function generatePDF() {
   });
 
   // Add Total Amount
-  const totalAmount = document.getElementById("total-amount").textContent || "0.00";
+  const totalAmount = document.getElementById("total-amount").textContent || "0";
   const totalY = doc.lastAutoTable.finalY + 10;
   doc.setFontSize(14);
-  doc.text(`Total: ₹${totalAmount}`, 105, totalY, { align: "center" });
+  doc.text(`Total: ${totalAmount}`, 105, totalY, { align: "center" });
 
   // Save the PDF
   doc.save(`${shopName}.pdf`);
