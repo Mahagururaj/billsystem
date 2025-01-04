@@ -9,34 +9,34 @@
 
 //     // Function to add a new row
 //    function addRow() {
-  const tableBody = document.getElementById("invoice-rows");
-  const rowNumber = tableBody.children.length + 1; // Dynamic row numbering
-  const row = document.createElement("tr");
-  row.innerHTML = `
-    <td>${rowNumber}</td>
-    <td><input type="date" required></td>
-    <td>
-      <select required>
-        <option value="" disabled selected>Select Item</option>
-        <option value="Khasta">Khasta</option>
-        <option value="Khasta(130)">Khasta(130)</option>
-        <option value="Khasta(140)">Khasta(140)</option>
-        <option value="Chikki">Chikki</option>
-        <option value="Jamun">Jamun</option>
-      </select>
-    </td>
-    <td>
-      <input type="number" min="1" value="1" oninput="updateTotals()" required>
-      <select required>
-        <option value="J">J</option>
-        <option value="P">P</option>
-      </select>
-    </td>
-    <td><input type="number" min="0.01" step="0.01" value="0.00" oninput="updateTotals()" required></td>
-    <td class="row-total">0.00</td>
-  `;
-  tableBody.appendChild(row);
-}
+//   const tableBody = document.getElementById("invoice-rows");
+//   const rowNumber = tableBody.children.length + 1; // Dynamic row numbering
+//   const row = document.createElement("tr");
+//   row.innerHTML = `
+//     <td>${rowNumber}</td>
+//     <td><input type="date" required></td>
+//     <td>
+//       <select required>
+//         <option value="" disabled selected>Select Item</option>
+//         <option value="Khasta">Khasta</option>
+//         <option value="Khasta(130)">Khasta(130)</option>
+//         <option value="Khasta(140)">Khasta(140)</option>
+//         <option value="Chikki">Chikki</option>
+//         <option value="Jamun">Jamun</option>
+//       </select>
+//     </td>
+//     <td>
+//       <input type="number" min="1" value="1" oninput="updateTotals()" required>
+//       <select required>
+//         <option value="J">J</option>
+//         <option value="P">P</option>
+//       </select>
+//     </td>
+//     <td><input type="number" min="0.01" step="0.01" value="0.00" oninput="updateTotals()" required></td>
+//     <td class="row-total">0.00</td>
+//   `;
+//   tableBody.appendChild(row);
+// }
 
 //     // Function to calculate totals
 //     function updateTotals() {
@@ -133,22 +133,19 @@
 //     // Add an initial row on page load
 //     addRow();
 
-// Function to format date
+// Set current date in format DD/MM/YYYY
 const formatDate = (date) => {
   const day = ("0" + date.getDate()).slice(-2);
   const month = ("0" + (date.getMonth() + 1)).slice(-2);
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
 };
-
-// Set current date
-document.getElementById("current-date").textContent = `Date: ${formatDate(new Date())}`;
+document.getElementById("current-date").textContent = formatDate(new Date());
 
 // Function to add a new row
 function addRow() {
   const tableBody = document.getElementById("invoice-rows");
   const rowNumber = tableBody.children.length + 1; // Dynamic row numbering
-  
   const row = document.createElement("tr");
   row.innerHTML = `
     <td>${rowNumber}</td>
@@ -156,11 +153,11 @@ function addRow() {
     <td>
       <select required>
         <option value="" disabled selected>Select Item</option>
+        <option value="Khasta">Khasta</option>
         <option value="Khasta(130)">Khasta(130)</option>
         <option value="Khasta(140)">Khasta(140)</option>
         <option value="Chikki">Chikki</option>
         <option value="Jamun">Jamun</option>
-        <option value="Khasta">Khasta</option>
       </select>
     </td>
     <td>
@@ -176,7 +173,7 @@ function addRow() {
   tableBody.appendChild(row);
 }
 
-// Function to update totals
+// Function to calculate totals
 function updateTotals() {
   const rows = document.querySelectorAll("#invoice-rows tr");
   let totalAmount = 0;
@@ -192,48 +189,52 @@ function updateTotals() {
   document.getElementById("total-amount").textContent = totalAmount.toFixed(2);
 }
 
-// Function to generate PDF
+// Function to generate PDF using jsPDF
 function generatePDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  // Shop Name
-  const shopName = document.getElementById("shop-name-input").value.trim();
-  if (!shopName) {
-    alert("Please enter the shop name.");
-    return;
-  }
+  // Get Shop Name
+  const shopName = document.getElementById("shop-name-input").value || "Your Shop Name";
 
+  // Add Shop Name and Date
   doc.setFontSize(18);
   doc.text(shopName, 105, 20, { align: "center" });
+  doc.setFontSize(12);
+  doc.text(`Date: ${formatDate(new Date())}`, 180, 20, { align: "right" });
 
-  // Current Date
-  const dateText = "Date: " + formatDate(new Date());
-  doc.setFontSize(14);
-  doc.text(dateText, 200, 20, { align: "right" });
-
-  // Table Data
+  // Extract table data
   const rows = [];
-  document.querySelectorAll("#invoice-rows tr").forEach((row) => {
-    const date = row.children[1].querySelector("input").value || "N/A";
-    const item = row.children[2].querySelector("select").value || "N/A";
+  const tableData = document.querySelectorAll("#invoice-rows tr");
+  tableData.forEach((row) => {
+    const date = row.children[1].querySelector("input").value || "";
+    const item = row.children[2].querySelector("select").value || "";
     const quantity = row.children[3].querySelector("input").value || "0";
     const type = row.children[3].querySelector("select").value || "";
+    const price = parseFloat(row.children[4].querySelector("input").value) || "0.00";
     const total = row.children[5].textContent || "0.00";
 
-    rows.push([date, item, `${quantity} (${type})`, total]);
+    rows.push([date, item, `${quantity} (${type})`, price, total]);
   });
 
+  // Generate table with autoTable plugin
   doc.autoTable({
-    head: [["Date", "Item", "Quantity", "Total"]],
+    startY: 30,
+    head: [["Date", "Item Description", "Quantity", "Price", "Total"]],
     body: rows,
+    theme: "striped",
+    styles: { fontSize: 10 },
   });
 
+  // Add Total Amount
   const totalAmount = document.getElementById("total-amount").textContent || "0.00";
-  doc.text(`Total: ${totalAmount}`, 105, doc.lastAutoTable.finalY + 10, { align: "center" });
+  const totalY = doc.lastAutoTable.finalY + 10;
+  doc.setFontSize(14);
+  doc.text(`Total: ₹${totalAmount}`, 105, totalY, { align: "center" });
 
-  doc.save(`${shopName}_Invoice.pdf`);
+  // Save the PDF
+  doc.save(`${shopName}.pdf`);
 }
 
-// Add initial row
+// Add an initial row on page load
 addRow();
